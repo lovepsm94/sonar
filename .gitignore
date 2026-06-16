@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Brainstorming visual companion artifacts
+.superpowers/
+
+# Logs & env
+*.log
+.env
+.env.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
