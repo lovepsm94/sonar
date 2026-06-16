@@ -88,7 +88,7 @@ Tàu địch ẩn mặc định. Các sự kiện làm lộ:
 
 ## 9. Kiến trúc kỹ thuật
 
-**Stack:** Next.js với `output: 'export'` (site tĩnh thuần client) + TypeScript + React. State game bằng reducer thuần, tách khỏi UI.
+**Stack:** Next.js với `output: 'export'` (site tĩnh thuần client) + TypeScript + React + **Framer Motion** (animation) + SVG. State game bằng reducer thuần, tách khỏi UI.
 
 **Phân lớp module (mỗi phần một trách nhiệm, test độc lập):**
 
@@ -103,7 +103,10 @@ Tàu địch ẩn mặc định. Các sự kiện làm lộ:
 - `net/signaling` — mã hoá/nén SDP ↔ chuỗi cho QR & link (deflate + base64url, `#fragment`).
 - `net/qr` — sinh QR (`qrcode`) + quét QR qua camera (`jsqr` hoặc `html5-qrcode`).
 - `app/i18n` — song ngữ Việt/Anh: từ điển `key → { vi, en }`, hook `useI18n()` trả hàm `t(key)`, context giữ ngôn ngữ hiện tại. Mặc định theo `navigator.language` (fallback **vi**), lưu lựa chọn vào `localStorage`. Không dùng thư viện nặng.
+- `app/board` — lớp render + animation bàn cờ bằng **SVG + Framer Motion** (`motion`): vẽ lưới/đảo/sector bằng SVG, tàu là `motion` element animate vị trí theo state (trượt mượt ô→ô), vẽ vệt đường, và các hiệu ứng có chuỗi: **ngư lôi bay theo cung**, **sonar ping vòng lan**, **chớp khi trúng**. Render thuần từ `GameState`, không giữ state riêng.
 - `app/` — các trang/màn hình Next, ghép engine + net.
+
+**Render & animation:** dùng **Framer Motion + SVG** (không Konva/Pixi) vì game turn-based, ít vật thể động, hợp với React state, dễ i18n/CSS/accessibility. Animation chỉ là lớp trình diễn — **không ảnh hưởng logic** trong `game/engine` (engine tính tức thời, board diễn hoạt kết quả).
 
 **Màn hình (5):** Trang chủ → Bắt tay kết nối → Bàn chơi chính → Chờ lượt địch → Kết thúc. Mọi màn có **nút chuyển ngôn ngữ VI/EN** (góc trên). Ngôn ngữ là tùy chọn cục bộ mỗi máy — không đồng bộ qua mạng (2 người có thể xem 2 ngôn ngữ khác nhau).
 
