@@ -12,6 +12,7 @@ Xây một trang web tĩnh cho phép **2 người** đấu tàu ngầm trực ti
 - Luật chơi turn-based với 5 hành động: Move, Sonar, Silence, Torpedo, Surface.
 - Bắt tay WebRTC 2-QR (offer/answer) + dự phòng copy link.
 - Đồng bộ trạng thái 2 máy qua DataChannel.
+- **Song ngữ Việt / Anh** (i18n) — toàn bộ chữ trong UI.
 
 **Ngoài phạm vi (YAGNI):**
 - Server, tài khoản, bảng xếp hạng, ghép trận online ngẫu nhiên.
@@ -101,9 +102,10 @@ Tàu địch ẩn mặc định. Các sự kiện làm lộ:
 - `net/webrtc` — bọc `RTCPeerConnection` + `RTCDataChannel`: `createHost()`, `joinFrom(offer)`, `onMessage`, `send(action)`; non-trickle ICE; cấu hình STUN.
 - `net/signaling` — mã hoá/nén SDP ↔ chuỗi cho QR & link (deflate + base64url, `#fragment`).
 - `net/qr` — sinh QR (`qrcode`) + quét QR qua camera (`jsqr` hoặc `html5-qrcode`).
+- `app/i18n` — song ngữ Việt/Anh: từ điển `key → { vi, en }`, hook `useI18n()` trả hàm `t(key)`, context giữ ngôn ngữ hiện tại. Mặc định theo `navigator.language` (fallback **vi**), lưu lựa chọn vào `localStorage`. Không dùng thư viện nặng.
 - `app/` — các trang/màn hình Next, ghép engine + net.
 
-**Màn hình (5):** Trang chủ → Bắt tay kết nối → Bàn chơi chính → Chờ lượt địch → Kết thúc.
+**Màn hình (5):** Trang chủ → Bắt tay kết nối → Bàn chơi chính → Chờ lượt địch → Kết thúc. Mọi màn có **nút chuyển ngôn ngữ VI/EN** (góc trên). Ngôn ngữ là tùy chọn cục bộ mỗi máy — không đồng bộ qua mạng (2 người có thể xem 2 ngôn ngữ khác nhau).
 
 **Luồng dữ liệu khi chơi:**
 1. UI phát `Action` → `engine.reduce` cập nhật state cục bộ.
@@ -118,6 +120,7 @@ Tàu địch ẩn mặc định. Các sự kiện làm lộ:
 - **`game/map`:** unit test — cùng seed ra cùng map (deterministic); đảo luôn cách nhau ≥ 2 ô; số đảo mỗi sector trong giới hạn; nước luôn liền mạch.
 - **`game/engine`:** unit test (Vitest) — bao phủ luật di chuyển, năng lượng, torpedo, sonar, surface, điều kiện thắng/thua. Viết theo TDD.
 - **`net/signaling`:** unit test mã hoá/giải mã + kiểm tra kích thước vừa 1 QR.
+- **`app/i18n`:** unit test — mọi key đều có đủ cả `vi` và `en`; `t()` trả đúng theo ngôn ngữ hiện tại và fallback hợp lý.
 - **`net/webrtc` & `net/qr`:** test thủ công 2 thiết bị; test luồng bắt tay bằng **2 tab trên localhost**.
 
 ## 11. Giới hạn đã biết (tổng hợp)
