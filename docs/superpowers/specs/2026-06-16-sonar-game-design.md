@@ -1,7 +1,7 @@
 # Sonar — Game tàu ngầm 2 người P2P (thiết kế)
 
 - **Ngày:** 2026-06-16
-- **Trạng thái:** Đã duyệt thiết kế, chờ review spec
+- **Trạng thái:** Đã duyệt — có kế hoạch triển khai tại `docs/superpowers/plans/2026-06-16-sonar-game.md`
 - **Tóm tắt:** Web game 2 người chơi kiểu *Captain Sonar* đơn giản hoá, turn-based, kết nối P2P qua WebRTC, bắt tay bằng QR/link, **không có backend**.
 
 ## 1. Mục tiêu & phạm vi
