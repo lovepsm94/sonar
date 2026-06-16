@@ -30,7 +30,10 @@ Xây một trang web tĩnh cho phép **2 người** đấu tàu ngầm trực ti
 
 - Lưới **10×10**.
 - Chia **4 sector** (4 góc 5×5), đặt tên A/B/C/D.
-- Vài ô **đảo** (chướng ngại) theo **một layout cố định, đối xứng** để cân bằng.
+- **Bản đồ sinh ngẫu nhiên mỗi ván**, từ một **seed** do host tạo và chia sẻ cho cả 2 máy (xem §8) → cả hai chạy cùng thuật toán → ra **bản đồ y hệt** (deterministic).
+- **Đảo rải rác, không cụm:** thuật toán đặt đảo có ràng buộc **khoảng cách tối thiểu** giữa hai đảo bất kỳ (≥ 2 ô) + **giới hạn số đảo mỗi sector** (cân bằng giữa 4 sector). Mật độ đảo ~10–15% số ô.
+- **Đảm bảo chơi được:** mặt nước phải **liền mạch** (mọi ô nước đi đến được nhau); nếu seed sinh ra map không hợp lệ thì sinh lại (vẫn deterministic theo seed kế tiếp).
+- **Vị trí xuất phát:** mỗi người tự chọn ô nước bắt đầu (bí mật) khi vào ván.
 - Ràng buộc di chuyển: không đi qua đảo; **không đi đè vệt đường của chính mình**. Vệt reset khi Surface.
 
 ## 4. Cấu trúc lượt & năng lượng
@@ -72,7 +75,7 @@ Tàu địch ẩn mặc định. Các sự kiện làm lộ:
 **Cách trao đổi:** QR là chính, **dự phòng copy link** (dán qua chat/AirDrop khi camera lỗi).
 
 **Luồng 2-QR (Máy B tự vào phòng):**
-1. **Máy A (host):** bấm *Tạo phòng* → tạo **Offer** + gom ICE xong → hiện **QR #1 / link Offer**.
+1. **Máy A (host):** bấm *Tạo phòng* → sinh **seed bản đồ ngẫu nhiên** → tạo **Offer** (kèm seed trong payload) + gom ICE xong → hiện **QR #1 / link Offer**.
 2. **Máy B:** **quét QR #1 hoặc mở link** → **tự động** nhận Offer, tạo **Answer** + gom ICE → hiện **QR #2 (Answer)**.
 3. **Máy A:** quét **QR #2** → set remote description → **DataChannel mở → vào game**.
 
@@ -88,8 +91,9 @@ Tàu địch ẩn mặc định. Các sự kiện làm lộ:
 
 **Phân lớp module (mỗi phần một trách nhiệm, test độc lập):**
 
+- `game/map` — sinh bản đồ **deterministic theo seed**: PRNG có seed, đặt đảo với ràng buộc khoảng cách tối thiểu + giới hạn mỗi sector, kiểm tra nước liền mạch (flood-fill), sinh lại nếu không hợp lệ. Thuần, không UI.
 - `game/engine` — luật thuần, không UI/mạng:
-  - Kiểu dữ liệu: `GameState`, `Action`, `Cell`, `Direction`, `SystemType`.
+  - Kiểu dữ liệu: `GameState`, `Action`, `Cell`, `Direction`, `SystemType`, `MapSeed`.
   - `reduce(state, action): GameState` — hàm chuyển trạng thái thuần.
   - Kiểm tra hợp lệ: move không đè vệt/đảo, đủ năng lượng, torpedo trong tầm.
   - Tính trúng torpedo; sinh dữ liệu Sonar (thật/giả).
@@ -111,6 +115,7 @@ Tàu địch ẩn mặc định. Các sự kiện làm lộ:
 
 ## 10. Kiểm thử
 
+- **`game/map`:** unit test — cùng seed ra cùng map (deterministic); đảo luôn cách nhau ≥ 2 ô; số đảo mỗi sector trong giới hạn; nước luôn liền mạch.
 - **`game/engine`:** unit test (Vitest) — bao phủ luật di chuyển, năng lượng, torpedo, sonar, surface, điều kiện thắng/thua. Viết theo TDD.
 - **`net/signaling`:** unit test mã hoá/giải mã + kiểm tra kích thước vừa 1 QR.
 - **`net/webrtc` & `net/qr`:** test thủ công 2 thiết bị; test luồng bắt tay bằng **2 tab trên localhost**.
