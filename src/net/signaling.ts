@@ -48,3 +48,31 @@ export function decodeSignal(s: string): SignalPayload {
   }
   return raw;
 }
+
+export type CodeError = 'bad-code' | 'wrong-role';
+
+/**
+ * Parse a scanned/pasted peer code into a payload, classifying why it failed.
+ *
+ * Accepts a raw QR string, a pasted token, or a full link (takes the part after the
+ * last `#`). Returns a tagged result so the UI can show a precise message instead of
+ * silently swallowing a bad code:
+ *  - `bad-code`   — empty, corrupt, or not a valid signal payload
+ *  - `wrong-role` — valid code but the wrong kind (e.g. scanning an offer where an
+ *                   answer is expected, or your own code)
+ */
+export function readPeerCode(
+  raw: string,
+  expect: 'offer' | 'answer',
+): { ok: true; payload: SignalPayload } | { ok: false; error: CodeError } {
+  const code = raw.includes('#') ? raw.slice(raw.lastIndexOf('#') + 1) : raw.trim();
+  if (!code) return { ok: false, error: 'bad-code' };
+  let payload: SignalPayload;
+  try {
+    payload = decodeSignal(code);
+  } catch {
+    return { ok: false, error: 'bad-code' };
+  }
+  if (payload.role !== expect) return { ok: false, error: 'wrong-role' };
+  return { ok: true, payload };
+}

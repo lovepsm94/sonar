@@ -8,9 +8,13 @@ import { SCREEN, BTN_PRIMARY, BTN_GHOST, KICKER, TITLE, MONO, MUTED } from './ui
 interface Props {
   onCreate: () => void;
   onJoinCode: (text: string) => void;
+  /** Inline error from a rejected join scan (bad or wrong-role code). */
+  error?: string | null;
+  /** Clear the inline error (called when the user rescans). */
+  onClearError?: () => void;
 }
 
-export function HomeScreen({ onCreate, onJoinCode }: Props) {
+export function HomeScreen({ onCreate, onJoinCode, error = null, onClearError }: Props) {
   const { t } = useI18n();
   const [scanning, setScanning] = useState(false);
 
@@ -41,16 +45,22 @@ export function HomeScreen({ onCreate, onJoinCode }: Props) {
           </svg>
           {t('home.create')}
         </button>
-        <button className={BTN_GHOST + ' h-[50px]'} onClick={() => setScanning(true)}>
+        <button className={BTN_GHOST + ' h-[50px]'} onClick={() => { onClearError?.(); setScanning(true); }}>
           <svg className="w-[17px] h-[17px]" width="17" height="17" viewBox="0 0 24 24" fill="none">
             <path d="M3 7V4h3M21 7V4h-3M3 17v3h3M21 17v3h-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M7 12h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
           {t('home.join')}
         </button>
-        <p className={MONO + ' ' + MUTED + ' text-[9.5px] tracking-[.1em] opacity-70 mt-0.5'}>
-          {t('home.joinHint')}
-        </p>
+        {error ? (
+          <p className={MONO + ' text-danger text-[11px] tracking-[.04em] leading-snug mt-0.5'}>
+            ⚠ {error}
+          </p>
+        ) : (
+          <p className={MONO + ' ' + MUTED + ' text-[9.5px] tracking-[.1em] opacity-70 mt-0.5'}>
+            {t('home.joinHint')}
+          </p>
+        )}
       </div>
 
       {scanning && (

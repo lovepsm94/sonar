@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGame } from './useGame';
 import { useRadioOperator } from './useRadioOperator';
 import { PeerLink } from '@/net/webrtc';
-import { encodeSignal, decodeSignal } from '@/net/signaling';
+import { encodeSignal, readPeerCode, type CodeError } from '@/net/signaling';
 import { makeQrDataUrl } from '@/net/qr';
 import { generateMap } from '@/game/map';
 import { mulberry32 } from '@/game/rng';
@@ -12,6 +12,7 @@ import { ConnectScreen } from './screens/ConnectScreen';
 import { PlaceScreen } from './screens/PlaceScreen';
 import { PlayScreen } from './screens/PlayScreen';
 import { EndScreen } from './screens/EndScreen';
+import { NoticeScreen, type NoticeReason } from './screens/NoticeScreen';
 import { MiniRadar, WaitDots } from './screens/bits';
 import { useI18n } from './i18n/I18nContext';
 import { SCREEN, CHIP, DOT } from './screens/ui';
@@ -57,7 +58,8 @@ export default function Page() {
   // appears with the QR already drawn (no empty-placeholder flash).
   const [guestQr, setGuestQr] = useState<string | null>(null);
   const [needScan, setNeedScan] = useState(false);
-  const [fatal, setFatal] = useState<null | 'connect'>(null);
+  const [notice, setNotice] = useState<NoticeReason | null>(null);
+  const [codeError, setCodeError] = useState<CodeError | null>(null);
   const [preparing, setPreparing] = useState<null | 'host' | 'guest'>(null);
   const hostLink = useRef<PeerLink | null>(null);
   const seedRef = useRef<number>(0);
@@ -248,31 +250,34 @@ export default function Page() {
       setPreparing(null);
     } catch {
       setPreparing(null);
-      setFatal('connect');
+      setNotice('handshake-failed');
     }
   }, [attach, onApplied]);
 
   const onHostScanned = useCallback(async (text: string) => {
-    // Accept either a scanned QR, a pasted raw token, or a pasted link (#fragment).
-    const code = text.includes('#') ? text.slice(text.lastIndexOf('#') + 1) : text.trim();
-    let payload;
-    try { payload = decodeSignal(code); } catch { return; }
-    if (payload.role !== 'answer') return;
+    // Accept a scanned QR, a pasted raw token, or a pasted link (#fragment).
+    const res = readPeerCode(text, 'answer');
+    if (!res.ok) { setCodeError(res.error); return; }
+    setCodeError(null);
     if (!hostLink.current) return;
     try {
-      await hostLink.current.acceptAnswer(payload.sdp);
+      await hostLink.current.acceptAnswer(res.payload.sdp);
     } catch {
-      setFatal('connect');
+      setNotice('handshake-failed');
     }
   }, []);
 
-  const joinWithOffer = useCallback(async (raw: string) => {
+  const joinWithOffer = useCallback(async (raw: string, fromHash = false) => {
     if (joinedRef.current) return;
-    const code = raw.includes('#') ? raw.slice(raw.lastIndexOf('#') + 1) : raw.trim();
-    if (!code) return;
-    let payload;
-    try { payload = decodeSignal(code); } catch { return; }
-    if (payload.role !== 'offer') return;
+    const res = readPeerCode(raw, 'offer');
+    if (!res.ok) {
+      // A blank auto-hash (no link) isn't an error — just stay on home silently.
+      // Any explicit attempt (scan/paste) or a malformed hash gets a visible reason.
+      if (!(fromHash && raw.replace(/^#?/, '').trim() === '')) setCodeError(res.error);
+      return;
+    }
+    const payload = res.payload;
+    setCodeError(null);
     joinedRef.current = true;
     setPreparing('guest');
     try {
@@ -295,7 +300,7 @@ export default function Page() {
       setPreparing(null);
     } catch {
       setPreparing(null);
-      setFatal('connect');
+      setNotice('handshake-failed');
       joinedRef.current = false;
     }
   }, [attach, onApplied]);
@@ -308,9 +313,19 @@ export default function Page() {
   useEffect(() => {
     if (ui !== 'home') return;
     const hash = typeof location !== 'undefined' ? location.hash.slice(1) : '';
-    if (hash) void joinWithOffer(hash);
+    if (hash) void joinWithOffer(hash, true);
     if (typeof document !== 'undefined') document.documentElement.removeAttribute('data-joining');
   }, [ui, joinWithOffer]);
+
+  // Connection timeout: while waiting on the QR/connect screens, if the peer never opens
+  // the data channel (e.g. ICE fails silently — common across strict/symmetric NATs),
+  // surface a notice instead of hanging forever. Cleared automatically when onOpen flips
+  // the UI to 'placing' (this effect re-runs and clears the timer).
+  useEffect(() => {
+    if (ui !== 'host-wait' && ui !== 'guest-wait') return;
+    const id = setTimeout(() => setNotice('timeout'), 25000);
+    return () => clearTimeout(id);
+  }, [ui]);
 
   // Transition to 'over' when phase changes
   useEffect(() => {
@@ -395,11 +410,16 @@ export default function Page() {
     }
   }, [state, dispatch, addFx, pushLog]);
 
-  if (fatal === 'connect') return (
-    <main className="min-h-screen grid place-items-center gap-3 p-6">
-      <p>⚠️ Lỗi kết nối / Connection error</p>
-      <button onClick={() => location.reload()}>↻</button>
-    </main>
+  const goHome = () => { location.hash = ''; location.reload(); };
+  const codeMsg =
+    codeError === 'bad-code' ? t('error.badCode')
+    : codeError === 'wrong-role' ? t('error.wrongRole')
+    : null;
+
+  // Hard connection failure (handshake threw, or timed out waiting for the peer) →
+  // styled, bilingual notice with a way out. Takes priority over the waiting screens.
+  if (notice) return (
+    <NoticeScreen reason={notice} onHome={goHome} onRetry={() => location.reload()} />
   );
 
   if (preparing) return (
@@ -412,15 +432,28 @@ export default function Page() {
     </div>
   );
 
-  if (ui === 'home') return <HomeScreen onCreate={createRoom} onJoinCode={joinWithOffer} />;
-  if (ui === 'host-wait') return <ConnectScreen myCode={myCode} needScan={needScan} onScanned={onHostScanned} />;
+  if (ui === 'home') return (
+    <HomeScreen
+      onCreate={createRoom}
+      onJoinCode={joinWithOffer}
+      error={codeMsg}
+      onClearError={() => setCodeError(null)}
+    />
+  );
+  if (ui === 'host-wait') return (
+    <ConnectScreen
+      myCode={myCode}
+      needScan={needScan}
+      onScanned={onHostScanned}
+      error={codeMsg}
+      onClearError={() => setCodeError(null)}
+    />
+  );
   if (ui === 'guest-wait') return <ConnectScreen myCode={myCode} needScan={false} onScanned={() => {}} qr={guestQr} />;
 
   if (!state) return <main className="min-h-screen grid place-items-center gap-3 p-6">…</main>;
 
-  if (connLost) {
-    return <main className="min-h-screen grid place-items-center gap-3 p-6">⚠️ Mất kết nối / Connection lost</main>;
-  }
+  if (connLost) return <NoticeScreen reason="conn-lost" onHome={goHome} />;
 
   // Still choosing a start cell → placement screen. Once we've dived but the
   // opponent hasn't, fall through to the in-game screen in a locked "waiting" state.

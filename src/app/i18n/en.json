@@ -29,6 +29,16 @@
   "connect.scan": "Scan opponent QR",
   "connect.waiting": "Connecting…",
 
+  "error.badCode": "Invalid or unreadable code. Double-check it and try again.",
+  "error.wrongRole": "Wrong code type — make sure you're scanning the other player's code, not your own.",
+
+  "notice.title": "Can't connect",
+  "notice.handshakeFailed": "Failed to establish the connection. Try again, or create a new room.",
+  "notice.timeout": "Timed out — the other player didn't connect. Same WiFi is most reliable; across networks a NAT may be blocking it.",
+  "notice.connLost": "Lost connection to the other player.",
+  "notice.retry": "Retry",
+  "notice.home": "Back to lobby",
+
   "place.kicker": "Deploy",
   "place.prompt": "Choose your start cell",
   "place.hint": "Tap a water cell to launch your sub.",

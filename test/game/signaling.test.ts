@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { encodeSignal, decodeSignal, type SignalPayload } from '@/net/signaling';
+import { encodeSignal, decodeSignal, readPeerCode, type SignalPayload } from '@/net/signaling';
 
 const sample: SignalPayload = {
   role: 'offer',
@@ -43,5 +43,36 @@ describe('signaling', () => {
   it('rejects a payload whose sdp is not a string', () => {
     const encoded = encodeSignal({ role: 'answer', seed: 7, sdp: 42 } as unknown as SignalPayload);
     expect(() => decodeSignal(encoded)).toThrow();
+  });
+});
+
+describe('readPeerCode', () => {
+  const offer = encodeSignal(sample);
+  const answer = encodeSignal({ role: 'answer', seed: 99, sdp: sample.sdp });
+
+  it('accepts a valid code of the expected role', () => {
+    const res = readPeerCode(offer, 'offer');
+    expect(res.ok).toBe(true);
+    if (res.ok) expect(res.payload.role).toBe('offer');
+  });
+
+  it('extracts the code after the last # of a link', () => {
+    const res = readPeerCode(`https://x.app/play#${answer}`, 'answer');
+    expect(res.ok).toBe(true);
+    if (res.ok) expect(res.payload.seed).toBe(99);
+  });
+
+  it('flags empty / whitespace input as bad-code', () => {
+    expect(readPeerCode('', 'offer')).toEqual({ ok: false, error: 'bad-code' });
+    expect(readPeerCode('   ', 'offer')).toEqual({ ok: false, error: 'bad-code' });
+  });
+
+  it('flags a corrupt code as bad-code', () => {
+    expect(readPeerCode('not-a-real-code!!', 'offer')).toEqual({ ok: false, error: 'bad-code' });
+  });
+
+  it('flags a valid code of the wrong role as wrong-role', () => {
+    expect(readPeerCode(offer, 'answer')).toEqual({ ok: false, error: 'wrong-role' });
+    expect(readPeerCode(answer, 'offer')).toEqual({ ok: false, error: 'wrong-role' });
   });
 });

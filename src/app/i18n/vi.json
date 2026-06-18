@@ -29,6 +29,16 @@
   "connect.scan": "Quét QR đối phương",
   "connect.waiting": "Đang kết nối…",
 
+  "error.badCode": "Mã không hợp lệ hoặc không đọc được. Kiểm tra lại rồi thử lần nữa.",
+  "error.wrongRole": "Nhầm loại mã — hãy chắc bạn đang quét đúng mã của đối phương, không phải mã của mình.",
+
+  "notice.title": "Không thể kết nối",
+  "notice.handshakeFailed": "Thiết lập kết nối thất bại. Thử lại, hoặc tạo phòng mới.",
+  "notice.timeout": "Hết thời gian chờ — đối phương chưa kết nối. Cùng mạng WiFi sẽ ổn định nhất; khác mạng có thể bị NAT chặn.",
+  "notice.connLost": "Mất kết nối với đối phương.",
+  "notice.retry": "Thử lại",
+  "notice.home": "Về sảnh",
+
   "place.kicker": "Triển khai",
   "place.prompt": "Chọn ô xuất phát",
   "place.hint": "Chạm vào một ô nước để hạ thủy tàu ngầm.",

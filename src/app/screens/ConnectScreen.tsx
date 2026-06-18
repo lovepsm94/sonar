@@ -19,9 +19,13 @@ interface Props {
   /** Pre-rendered QR data URL. When provided (guest flow), it's shown immediately
    *  instead of generating one here — avoids an empty-placeholder flash. */
   qr?: string | null;
+  /** Inline error from a rejected scan/paste (bad or wrong-role code). */
+  error?: string | null;
+  /** Clear the inline error (called when the user edits the input or rescans). */
+  onClearError?: () => void;
 }
 
-export function ConnectScreen({ myCode, needScan, onScanned, qr = null }: Props) {
+export function ConnectScreen({ myCode, needScan, onScanned, qr = null, error = null, onClearError }: Props) {
   const { t } = useI18n();
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(qr);
   const [scanning, setScanning] = useState(false);
@@ -99,7 +103,10 @@ export function ConnectScreen({ myCode, needScan, onScanned, qr = null }: Props)
 
         {needScan && (
           <>
-            <button className={BTN_PRIMARY + ' w-full'} onClick={() => setScanning(true)}>
+            <button
+              className={BTN_PRIMARY + ' w-full'}
+              onClick={() => { onClearError?.(); setScanning(true); }}
+            >
               <svg className="w-[17px] h-[17px]" width="17" height="17" viewBox="0 0 24 24" fill="none">
                 <rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" strokeWidth="2"/>
                 <circle cx="12" cy="12" r="3.2" stroke="currentColor" strokeWidth="2"/>
@@ -111,7 +118,7 @@ export function ConnectScreen({ myCode, needScan, onScanned, qr = null }: Props)
             <div className={ROW + ' gap-2 w-full'}>
               <input
                 value={paste}
-                onChange={(e) => setPaste(e.target.value)}
+                onChange={(e) => { setPaste(e.target.value); if (error) onClearError?.(); }}
                 placeholder={t('connect.pastePlaceholder')}
                 className="flex-1 min-h-0 h-[44px] px-3 rounded-sm2 bg-panel-2 border border-line text-ink font-mono text-[12px] outline-none"
               />
@@ -123,6 +130,11 @@ export function ConnectScreen({ myCode, needScan, onScanned, qr = null }: Props)
                 {t('connect.connectBtn')}
               </button>
             </div>
+            {error && (
+              <div className={MONO + ' text-danger text-[11px] tracking-[.04em] leading-snug w-full text-left'}>
+                ⚠ {error}
+              </div>
+            )}
           </>
         )}
 
