@@ -323,7 +323,7 @@ export default function Page() {
   // the UI to 'placing' (this effect re-runs and clears the timer).
   useEffect(() => {
     if (ui !== 'host-wait' && ui !== 'guest-wait') return;
-    const id = setTimeout(() => setNotice('timeout'), 25000);
+    const id = setTimeout(() => setNotice('timeout'), 120000);
     return () => clearTimeout(id);
   }, [ui]);
 
