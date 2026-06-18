@@ -55,11 +55,17 @@ export function useGame() {
     }
   }, []);
 
-  const dispatch = useCallback((a: LocalAction) => {
+  // Returns whether the engine actually accepted the action. The engine returns the
+  // SAME state object when it rejects (wrong turn, not enough energy, blocked path), so
+  // a reference change means "applied". Callers use this to avoid narrating FX/log for
+  // a rejected action.
+  const dispatch = useCallback((a: LocalAction): boolean => {
     const gameLoop = loop.current;
-    if (!gameLoop || !link.current) return;
+    if (!gameLoop || !link.current) return false;
+    const prev = gameLoop.state;
     const next = gameLoop.dispatch(a);
     setState(next);
+    return next !== prev;
   }, []);
 
   return { state, attach, dispatch, reset, link, connLost };

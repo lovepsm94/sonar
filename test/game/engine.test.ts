@@ -387,6 +387,13 @@ describe('engine review regressions', () => {
     expect(outgoing).toEqual([]);
   });
 
+  it('treats rematch as a no-op at the engine level (session-layer reset owns it)', () => {
+    const s = playingState();
+    const { state, outgoing } = applyRemote(s, { t: 'rematch', seed: 4242 });
+    expect(state).toBe(s);          // GameState untouched — reset lives outside the engine
+    expect(outgoing).toEqual([]);
+  });
+
   it('still accepts a torpedo-res reply during my own extra-turn', () => {
     // After the enemy surfaces I own SURFACE_SKIP turns; a reply to a torpedo I fired
     // on one of those turns arrives while it is still my turn — it must NOT be dropped.

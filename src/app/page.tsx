@@ -326,6 +326,12 @@ export default function Page() {
   const wrappedDispatch = useCallback((action: Parameters<typeof dispatch>[0]) => {
     if (!state) return;
 
+    // Apply through the engine FIRST. If it rejects the action (not my turn, not enough
+    // energy, blocked path), bail before narrating so we never log a phantom line or play
+    // an FX for something that didn't happen. FX origins below still read the pre-action
+    // position from `state` (the closure value is the state before this dispatch).
+    if (!dispatch(action)) return;
+
     if (action.kind === 'move') {
       pushLog('me',
         `Di chuyển ${DIR_VI[action.dir]}`,
@@ -387,8 +393,6 @@ export default function Page() {
         `Launched at ${colLabel(action.cell)}`
       );
     }
-
-    dispatch(action);
   }, [state, dispatch, addFx, pushLog]);
 
   if (fatal === 'connect') return (

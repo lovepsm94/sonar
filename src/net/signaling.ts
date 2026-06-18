@@ -26,7 +26,25 @@ export function encodeSignal(p: SignalPayload): string {
   return toBase64Url(deflate(json));
 }
 
+function isSignalPayload(v: unknown): v is SignalPayload {
+  if (typeof v !== 'object' || v === null) return false;
+  const p = v as Record<string, unknown>;
+  return (
+    (p.role === 'offer' || p.role === 'answer') &&
+    typeof p.seed === 'number' && Number.isFinite(p.seed) &&
+    typeof p.sdp === 'string'
+  );
+}
+
 export function decodeSignal(s: string): SignalPayload {
+  // Untrusted input: anyone can craft a QR/link. Validate the decoded shape and throw
+  // on anything unexpected so a malformed seed/sdp can't silently flow into generateMap
+  // (a bad seed would produce a wrong-but-valid map and desync the peers). Callers
+  // already treat a throw as "invalid code".
   const json = inflate(fromBase64Url(s), { to: 'string' });
-  return JSON.parse(json) as SignalPayload;
+  const raw: unknown = JSON.parse(json);
+  if (!isSignalPayload(raw)) {
+    throw new Error('decodeSignal: malformed or unrecognized signal payload');
+  }
+  return raw;
 }

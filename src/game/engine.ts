@@ -244,6 +244,14 @@ export function applyRemote(s: GameState, m: WireMessage): LocalResult {
     case 'resign': {
       return { state: { ...s, phase: 'over', winner: s.side }, outgoing: [] };
     }
+    case 'rematch': {
+      // A rematch is a SESSION-level reset, not a game-state transition: starting a new
+      // round also clears presentation state (log/stats/FX/screen) that lives outside
+      // GameState, so the app layer (useGame.reset) owns it and swaps in a fresh GameLoop.
+      // The engine deliberately leaves GameState untouched. Handled explicitly — rather
+      // than via the default fall-through — so this contract is visible and tested.
+      return { state: s, outgoing: [] };
+    }
     default:
       return { state: s, outgoing: [] };
   }
