@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="44%" r="62%">
+      <stop offset="0%" stop-color="#0b2630"></stop>
+      <stop offset="100%" stop-color="#06141a"></stop>
+    </radialGradient>
+    <clipPath id="disc"><circle cx="32" cy="32" r="27"></circle></clipPath>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#060e18"></rect>
+  <circle cx="32" cy="32" r="28" fill="none" stroke="#13303f" stroke-width="2"></circle>
+  <circle cx="32" cy="32" r="27" fill="url(#bg)"></circle>
+  <g clip-path="url(#disc)">
+    
+    <path d="M32 32 L32 5 A27 27 0 0 1 56 24 Z" fill="#3ddc84" opacity="0.20"></path>
+    
+    <g stroke="#3ddc84" stroke-width="1.1" opacity="0.5" fill="none">
+      <circle cx="32" cy="32" r="9"></circle>
+      <circle cx="32" cy="32" r="18"></circle>
+      <line x1="32" y1="5" x2="32" y2="59"></line>
+      <line x1="5" y1="32" x2="59" y2="32"></line>
+    </g>
+    
+    <line x1="32" y1="32" x2="32" y2="5" stroke="#3ddc84" stroke-width="1.6" opacity="0.9"></line>
+  </g>
+  
+  <circle cx="44" cy="22" r="3.4" fill="#4cc4ff"></circle>
+  <circle cx="44" cy="22" r="6.2" fill="none" stroke="#4cc4ff" stroke-width="1.2" opacity="0.6"></circle>
+  
+  <circle cx="32" cy="32" r="2.6" fill="#3ddc84"></circle>
+</svg>

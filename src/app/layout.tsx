@@ -1,8 +1,10 @@
 import './globals.css';
+import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { Be_Vietnam_Pro, IBM_Plex_Mono } from 'next/font/google';
 import { I18nProvider } from './i18n/I18nContext';
 import { TopBar } from './TopBar';
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from './siteConfig';
 
 const disp = Be_Vietnam_Pro({
   subsets: ['latin', 'vietnamese'],
@@ -16,12 +18,122 @@ const mono = IBM_Plex_Mono({
   variable: '--font-mono-src',
 });
 
-export const metadata = { title: 'Sonar' };
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — Submarine Duel`,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    'Sonar',
+    'Captain Sonar',
+    'submarine duel',
+    'submarine game',
+    'two player game',
+    '2 player game',
+    'turn-based strategy',
+    'WebRTC game',
+    'peer-to-peer game',
+    'P2P',
+    'browser game',
+    'no backend',
+    'naval strategy',
+    'tàu ngầm',
+    'game 2 người',
+  ],
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: 'games',
+  alternates: {
+    canonical: '/',
+  },
+  formatDetection: {
+    telephone: false,
+    email: false,
+    address: false,
+  },
+  manifest: '/site.webmanifest',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
+  openGraph: {
+    type: 'website',
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — Submarine Duel`,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    locale: 'vi_VN',
+    alternateLocale: ['en_US'],
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} — peer-to-peer submarine duel`,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${SITE_NAME} — Submarine Duel`,
+    description: SITE_DESCRIPTION,
+    images: ['/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#060e18',
+  colorScheme: 'dark',
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="vi" data-theme="naval" data-accent="green" className={`${disp.variable} ${mono.variable}`}>
       <head>
+        {/* Structured data (schema.org VideoGame) for rich search results. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'VideoGame',
+              name: SITE_NAME,
+              alternateName: 'Sonar — Submarine Duel',
+              description: SITE_DESCRIPTION,
+              url: SITE_URL,
+              image: `${SITE_URL}/og-image.png`,
+              applicationCategory: 'GameApplication',
+              genre: ['Strategy', 'Multiplayer'],
+              gamePlatform: 'Web browser',
+              operatingSystem: 'Any (web browser)',
+              playMode: 'MultiPlayer',
+              numberOfPlayers: { '@type': 'QuantitativeValue', value: 2 },
+              inLanguage: ['vi', 'en'],
+              offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+            }),
+          }}
+        />
         {/*
           Deep-link splash guard. Runs while the <head> is parsed — BEFORE the body
           (and the static HomeScreen) paints. If the page was opened via a connection

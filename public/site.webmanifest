@@ -1,0 +1,33 @@
+{
+  "name": "Sonar — Submarine Duel",
+  "short_name": "Sonar",
+  "description": "Song đấu tàu ngầm 2 người theo lượt qua WebRTC ngang hàng. Không máy chủ, không đăng ký — kết nối bằng mã QR hoặc link.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#060e18",
+  "theme_color": "#060e18",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-32.png",
+      "type": "image/png",
+      "sizes": "32x32"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180",
+      "purpose": "any"
+    }
+  ]
+}
