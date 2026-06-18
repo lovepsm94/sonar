@@ -16,3 +16,22 @@ out/
 # OS / editor
 .DS_Store
 Thumbs.db
+
+# Local tooling (Claude Code worktrees/settings)
+.claude/
+
+# Next.js generated type shim
+next-env.d.ts
+
+# Playwright smoke-test artifacts
+.playwright-mcp/
+connect-host.png
+
+# Local dev TLS certs
+certs/
+certificates/
+
+design
+
+# TS incremental cache
+tsconfig.tsbuildinfo

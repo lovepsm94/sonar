@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Deep-link splash overlay.
+
+   Shown only when <html data-joining> is set (by the inline guard in layout.tsx
+   on a #fragment link open). It sits on top of everything with an opaque themed
+   background, so the static HomeScreen never flashes before React mounts and
+   shows its own "joining" loader. React removes the data-joining flag once it
+   takes over, handing off seamlessly to that loader.
+   ────────────────────────────────────────────────────────────────────────── */
+#join-splash { display: none; }
+html[data-joining] #join-splash {
+  display: grid;
+  place-items: center;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg);
+}
+.join-splash-spin {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-top-color: var(--accent);
+  animation: join-splash-spin 0.9s linear infinite;
+}
+@keyframes join-splash-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .join-splash-spin { animation: none; } }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Thin themed scrollbar — used by scrollable panels (e.g. the move-history
+   sheet). Native scrollbars clash with the dark UI; this keeps them slim and
+   on-theme. WebKit + Firefox; harmless where unsupported (falls back to native).
+   ────────────────────────────────────────────────────────────────────────── */
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--line) 80%, transparent) transparent;
+}
+.thin-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.thin-scroll::-webkit-scrollbar-track { background: transparent; }
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--line) 80%, transparent);
+  border-radius: 3px;
+}
+.thin-scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--muted) 60%, transparent);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Board FX keyframes.
+
+   These live here (not in tailwind.config.ts) on purpose: they are referenced
+   by Board.tsx as inline `animation: 'fx-… '` strings, NOT as `animate-*`
+   utility classes. Tailwind only emits a @keyframes block when its matching
+   `animate-*` utility appears in the markup, so config-defined FX keyframes get
+   purged from the export and the animations silently die. Declaring them as raw
+   CSS guarantees they ship.
+
+   Animating SVG geometry props (r, stroke-width) and `transform` via CSS is
+   supported in all evergreen browsers — the same technique the design prototype
+   (design/board.jsx) uses.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Torpedo projectile glides along its offset-path */
+@keyframes fx-torp   { 0% { offset-distance: 0%; } 100% { offset-distance: 100%; } }
+
+/* Generic expanding ring + flash (used by simple impacts) */
+@keyframes fx-burst  { 0% { r: 1; opacity: 1; stroke-width: 3; } 100% { r: 30; opacity: 0; stroke-width: .5; } }
+@keyframes fx-flash  { 0% { r: 2; opacity: .95; } 60% { opacity: .7; } 100% { r: 22; opacity: 0; } }
+
+/* Detonation pieces — fireball, white-hot core, shockwaves, shrapnel, splash, smoke, scorch */
+@keyframes fx-fireball  { 0% { r: 1; opacity: 1; } 25% { r: 13; opacity: 1; } 100% { r: 8; opacity: 0; } }
+@keyframes fx-core      { 0% { r: 0; opacity: 1; } 30% { r: 7;  opacity: 1; } 100% { r: 2; opacity: 0; } }
+@keyframes fx-shock     { 0% { r: 3; opacity: .95; stroke-width: 3.5; } 100% { r: 34; opacity: 0; stroke-width: .4; } }
+@keyframes fx-ringflash { 0% { r: 4; opacity: .9;  stroke-width: 6;   } 100% { r: 46; opacity: 0; stroke-width: .4; } }
+@keyframes fx-shard     { 0% { opacity: 1; transform: translate(0, 0) scale(1); } 100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(.3); } }
+@keyframes fx-splash    { 0% { opacity: 1; transform: translate(0, 0) scale(1); } 100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(.4); } }
+@keyframes fx-smoke     { 0% { r: 2; opacity: 0; } 30% { opacity: .4; } 100% { r: 16; opacity: 0; } }
+@keyframes fx-scorch    { 0% { opacity: 0; } 20% { opacity: .7; } 100% { opacity: 0; } }
+
+/* Sonar ping, silent-run streak, surface rings + rising bubbles */
+@keyframes fx-ping      { 0% { r: 2; opacity: .85; stroke-width: 2.5; } 100% { r: 52; opacity: 0; stroke-width: .4; } }
+@keyframes fx-silence   { 0% { opacity: 0; stroke-dashoffset: 60; } 25% { opacity: .9; } 100% { opacity: 0; stroke-dashoffset: 0; } }
+@keyframes fx-surf-ring { 0% { r: 4; opacity: .9; stroke-width: 3; } 100% { r: 34; opacity: 0; stroke-width: .4; } }
+@keyframes fx-bubble    { 0% { opacity: 0; transform: translateY(0) scale(.5); } 20% { opacity: .95; } 100% { opacity: 0; transform: translateY(-30px) scale(1); } }
