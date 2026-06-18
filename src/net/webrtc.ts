@@ -1,8 +1,7 @@
 import type { WireMessage } from '@/game/protocol';
+import { buildIceServers } from './iceConfig';
 
-const ICE_CONFIG: RTCConfiguration = {
-  iceServers: [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }],
-};
+const ICE_CONFIG: RTCConfiguration = { iceServers: buildIceServers() };
 
 /** Resolve once ICE gathering is complete so the SDP carries all candidates (non-trickle). */
 function waitForIce(pc: RTCPeerConnection): Promise<void> {
@@ -20,7 +19,9 @@ function waitForIce(pc: RTCPeerConnection): Promise<void> {
     timer = setTimeout(() => {
       pc.removeEventListener('icegatheringstatechange', check);
       resolve();
-    }, 3000);
+      // Gathering relay candidates via TURN (especially turns: over 443) is slower
+      // than plain STUN; give it longer so the SDP carries a relay candidate.
+    }, 5000);
   });
 }
 
