@@ -7,10 +7,17 @@ out/
 
 # Brainstorming visual companion / design-sync artifacts
 .superpowers/
-.design-sync/
+# design-sync: keep durable inputs (config, previews, fixtures, conventions,
+# NOTES, compiled.css) committed; ignore only machine-generated state.
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules/
 .ds-sync/
 ds-bundle/
 review-floor.png
+review-authored.png
+card-*.png
+live-*.png
 
 # Logs & env
 *.log

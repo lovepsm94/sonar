@@ -1,0 +1,26 @@
+{
+  "projectId": "45cb1050-ff36-4a92-b64c-45bbf66caaff",
+  "shape": "package",
+  "pkg": "sonar",
+  "globalName": "Sonar",
+  "entry": "./.design-sync/lib-entry.tsx",
+  "tsconfig": "./tsconfig.json",
+  "cssEntry": ".design-sync/compiled.css",
+  "extraEntries": ["./.design-sync/preview-root.tsx"],
+  "provider": { "component": "PreviewRoot" },
+  "readmeHeader": ".design-sync/conventions.md",
+  "runtimeFontPrefixes": ["IBM Plex", "Be Vietnam"],
+  "componentSrcMap": {
+    "WaitDots": "src/app/screens/bits.tsx",
+    "MiniRadar": "src/app/screens/bits.tsx",
+    "TopBar": "src/app/TopBar.tsx",
+    "Board": "src/app/board/Board.tsx",
+    "HomeScreen": "src/app/screens/HomeScreen.tsx",
+    "ConnectScreen": "src/app/screens/ConnectScreen.tsx",
+    "PlaceScreen": "src/app/screens/PlaceScreen.tsx",
+    "PlayScreen": "src/app/screens/PlayScreen.tsx",
+    "EndScreen": "src/app/screens/EndScreen.tsx",
+    "ScanModal": null,
+    "NoticeScreen": "src/app/screens/NoticeScreen.tsx"
+  }
+}
