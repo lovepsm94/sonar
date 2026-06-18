@@ -5,8 +5,12 @@ node_modules/
 .next/
 out/
 
-# Brainstorming visual companion artifacts
+# Brainstorming visual companion / design-sync artifacts
 .superpowers/
+.design-sync/
+.ds-sync/
+ds-bundle/
+review-floor.png
 
 # Logs & env
 *.log
