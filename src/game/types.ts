@@ -10,7 +10,7 @@ export const ISLAND_MIN = 10;      // min islands on a map
 export const ISLAND_MAX = 15;      // max islands on a map
 export const ISLAND_MIN_GAP = 2;   // Chebyshev gap between islands
 
-export const COST = { sonar: 2, silence: 4, torpedo: 4 } as const;
+export const COST = { sonar: 2, silence: 3, torpedo: 4 } as const;
 
 export type Lang = 'vi' | 'en';
 export type Direction = 'N' | 'S' | 'E' | 'W';
