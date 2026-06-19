@@ -36,6 +36,9 @@
   "notice.handshakeFailed": "Failed to establish the connection. Try again, or create a new room.",
   "notice.timeout": "Timed out — the other player didn't connect. Same WiFi is most reliable; across networks a NAT may be blocking it.",
   "notice.connLost": "Lost connection to the other player.",
+  "notice.statusHandshake": "Link failed",
+  "notice.statusTimeout": "Timed out",
+  "notice.statusConnLost": "Signal lost",
   "notice.retry": "Retry",
   "notice.home": "Back to lobby",
 

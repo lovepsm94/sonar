@@ -36,6 +36,9 @@
   "notice.handshakeFailed": "Thiết lập kết nối thất bại. Thử lại, hoặc tạo phòng mới.",
   "notice.timeout": "Hết thời gian chờ — đối phương chưa kết nối. Cùng mạng WiFi sẽ ổn định nhất; khác mạng có thể bị NAT chặn.",
   "notice.connLost": "Mất kết nối với đối phương.",
+  "notice.statusHandshake": "Liên lạc thất bại",
+  "notice.statusTimeout": "Hết thời gian",
+  "notice.statusConnLost": "Mất tín hiệu",
   "notice.retry": "Thử lại",
   "notice.home": "Về sảnh",
 
