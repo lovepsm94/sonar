@@ -49,7 +49,7 @@ export function ConnectScreen({ myCode, needScan, onScanned, qr = null, error = 
   const role = needScan ? 'host' : 'guest';
 
   return (
-    <div className={SCREEN + ' justify-center gap-[22px] text-center !pt-[clamp(12px,3vh,30px)]'}>
+    <div className={SCREEN + ' justify-center gap-[22px] text-center !pt-[clamp(12px,3dvh,30px)]'}>
       <div className="flex flex-col items-center justify-center gap-[6px]">
         <div className={role === 'guest' ? KICKER_ENEMY : KICKER}>
           {role === 'host' ? t('connect.host') : t('connect.guest')}

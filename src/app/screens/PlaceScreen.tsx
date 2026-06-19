@@ -19,9 +19,9 @@ export function PlaceScreen({ state, onPlace }: { state: GameState; onPlace: (c:
   }
 
   return (
-    <div className={SCREEN + ' !pt-[clamp(10px,2vh,16px)] !pb-[clamp(8px,1.6vh,24px)] !px-[clamp(8px,3vw,18px)]'}>
+    <div className={SCREEN + ' !pt-[clamp(10px,2dvh,16px)] !pb-[clamp(8px,1.6dvh,24px)] !px-[clamp(8px,3vw,18px)]'}>
       {/* Header + board centered as one unit so the prompt sits right above the map. */}
-      <div className="grow min-h-0 flex flex-col justify-center gap-[clamp(8px,1.6vh,16px)]">
+      <div className="grow min-h-0 flex flex-col justify-center gap-[clamp(8px,1.6dvh,16px)]">
         <div className={COL + ' gap-1'}>
           <div className={KICKER}>{t('place.kicker')}</div>
           <h2 className={TITLE + ' text-[26px]'}>{t('place.prompt')}</h2>

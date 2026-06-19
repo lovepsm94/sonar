@@ -451,7 +451,7 @@ export default function Page() {
   );
   if (ui === 'guest-wait') return <ConnectScreen myCode={myCode} needScan={false} onScanned={() => {}} qr={guestQr} />;
 
-  if (!state) return <main className="min-h-screen grid place-items-center gap-3 p-6">…</main>;
+  if (!state) return <main className="min-h-[100dvh] grid place-items-center gap-3 p-6">…</main>;
 
   if (connLost) return <NoticeScreen reason="conn-lost" onHome={goHome} />;
 

@@ -103,7 +103,7 @@ export function PlayScreen(props: Props) {
   };
 
   return (
-    <div className={SCREEN + ' gap-[clamp(4px,1vh,10px)] !pt-[clamp(8px,1.6vh,14px)] !pb-[clamp(6px,1.4vh,20px)] !px-[clamp(8px,3vw,18px)]'}>
+    <div className={SCREEN + ' gap-[clamp(4px,1dvh,10px)] !pt-[clamp(8px,1.6dvh,14px)] !pb-[clamp(6px,1.4dvh,20px)] !px-[clamp(8px,3vw,18px)]'}>
       {/* header: turn + count */}
       <div className={ROW + ' ' + BETWEEN + ' items-center gap-[10px]'}>
         <div className={waiting || !myTurn ? TURN_BANNER_THEIRS : TURN_BANNER_MINE}>
@@ -124,7 +124,7 @@ export function PlayScreen(props: Props) {
       </div>
 
       {/* enemy intel strip */}
-      <div className={ROW + ' ' + BETWEEN + ' items-center ' + HUD_CARD + ' px-3 py-[clamp(5px,1vh,9px)]'}>
+      <div className={ROW + ' ' + BETWEEN + ' items-center ' + HUD_CARD + ' px-3 py-[clamp(5px,1dvh,9px)]'}>
         <div className={ROW + ' items-center gap-[9px]'}>
           <span className={KICKER_ENEMY + ' text-[9.5px]'}>{t('play.enemy')}</span>
           <div className="flex gap-[5px]">{Array.from({ length: START_HP }, (_, i) => pip(i, 'enemy', en.hp))}</div>
@@ -187,7 +187,7 @@ export function PlayScreen(props: Props) {
       </div>
 
       {/* my status — ~10% more compact than before to give the board more height */}
-      <div className={ROW + ' ' + BETWEEN + ' items-center ' + HUD_CARD + ' px-3 py-[clamp(5px,1vh,9px)] gap-[12px]'}>
+      <div className={ROW + ' ' + BETWEEN + ' items-center ' + HUD_CARD + ' px-3 py-[clamp(5px,1dvh,9px)] gap-[12px]'}>
         <div className={COL + ' gap-[5px]'}>
           <span className={KICKER + ' text-[9.5px]'}>{t('play.hull')}</span>
           <div className="flex gap-[5px]">{Array.from({ length: START_HP }, (_, i) => pip(i, 'me', me.hp))}</div>
@@ -256,7 +256,7 @@ export function PlayScreen(props: Props) {
       <div className={ROW + ' ' + BETWEEN + ' items-center gap-[10px]'}>
         <button
           type="button"
-          className={LOG + ' ' + GROW + ' relative h-[clamp(34px,5vh,46px)] overflow-hidden flex flex-col-reverse text-left cursor-pointer [-webkit-tap-highlight-color:transparent]'}
+          className={LOG + ' ' + GROW + ' relative h-[clamp(34px,5dvh,46px)] overflow-hidden flex flex-col-reverse text-left cursor-pointer [-webkit-tap-highlight-color:transparent]'}
           onClick={() => setSheet('history')}
           aria-label={t('play.history')}
         >
@@ -383,7 +383,7 @@ export function PlayScreen(props: Props) {
             {log.length === 0 ? (
               <p className={MUTED + ' text-[13px] leading-[1.5]'}>{t('play.historyEmpty')}</p>
             ) : (
-              <div className={LOG + ' thin-scroll max-h-[50vh] overflow-y-auto flex flex-col-reverse pr-[6px]'}>
+              <div className={LOG + ' thin-scroll max-h-[50dvh] overflow-y-auto flex flex-col-reverse pr-[6px]'}>
                 {log.slice().reverse().map((l) => (
                   <div className={LOG_ROW} key={l.id}>
                     <span className={LOG_T}>›</span>

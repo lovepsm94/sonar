@@ -163,7 +163,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               box-shadow: inset 0 0 120px rgba(0,0,0,0.55)
           */}
           <div className={[
-            'absolute inset-0 flex flex-col items-center',
+            // Anchor to the *dynamic* viewport (100dvh), not the large viewport.
+            // On iOS Safari `position:absolute;inset:0` resolves against the large
+            // viewport (toolbar-collapsed height), so the app overflowed behind the
+            // browser chrome and the height handed to the board measurement was too
+            // tall. `fixed` + `h-[100dvh]` tracks the actually-visible area instead.
+            'fixed inset-x-0 top-0 h-[100dvh] flex flex-col items-center',
             'text-ink font-disp overflow-hidden',
             '[background:radial-gradient(120%_80%_at_50%_-10%,color-mix(in_srgb,var(--accent)_8%,transparent),transparent_55%),radial-gradient(90%_60%_at_50%_110%,color-mix(in_srgb,var(--enemy)_7%,transparent),transparent_60%),var(--bg)]',
             'after:content-[""] after:absolute after:inset-0 after:pointer-events-none after:z-30',
