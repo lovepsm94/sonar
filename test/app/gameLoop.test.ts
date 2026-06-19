@@ -6,7 +6,7 @@
 // hit (the engine applies one HP decrement per received frame, by design).
 import { describe, it, expect } from 'vitest';
 import { GameLoop, type Transport } from '@/app/gameLoop';
-import { GRID, START_HP, COST, type Cell, type GameMap } from '@/game/types';
+import { GRID, START_HP, COST, SURFACE_SKIP, type Cell, type GameMap } from '@/game/types';
 
 function blankMap(): GameMap {
   const islands = Array.from({ length: GRID }, () => Array.from({ length: GRID }, () => false));
@@ -78,5 +78,61 @@ describe('GameLoop two-peer exchange', () => {
     expect(guest.state.winner).toBe('host');
     expect(host.state.phase).toBe('over');
     expect(host.state.winner).toBe('host');
+  });
+});
+
+describe('GameLoop surface skip cancellation', () => {
+  function connect() {
+    let host!: GameLoop;
+    let guest!: GameLoop;
+    host = new GameLoop({ send: (m) => guest.receive(m) }, blankMap(), 'host');
+    guest = new GameLoop({ send: (m) => host.receive(m) }, blankMap(), 'guest');
+    return { host, guest };
+  }
+
+  it('mutual back-to-back surfaces annihilate the skip streaks (3 vs 3 → normal play)', () => {
+    const { host, guest } = connect();
+    intoPlaying(host, { x: 5, y: 5 });
+    intoPlaying(guest, { x: 2, y: 2 });
+
+    // Host surfaces → guest is granted SURFACE_SKIP consecutive turns.
+    host.dispatch({ kind: 'surface' });
+    expect(host.state.enemyExtraTurns).toBe(SURFACE_SKIP);
+    expect(host.state.turn).toBe('guest');
+    expect(guest.state.myExtraTurns).toBe(SURFACE_SKIP);
+    expect(guest.state.turn).toBe('guest');
+
+    // Guest immediately surfaces back. Both skip streaks (3 vs 3) overlap and cancel,
+    // so neither side sits out — play resumes alternating, starting with host.
+    guest.dispatch({ kind: 'surface' });
+
+    expect(guest.state.myExtraTurns).toBe(0);
+    expect(guest.state.enemyExtraTurns).toBe(0);
+    expect(guest.state.turn).toBe('host');
+
+    // Both peers stay in sync.
+    expect(host.state.myExtraTurns).toBe(0);
+    expect(host.state.enemyExtraTurns).toBe(0);
+    expect(host.state.turn).toBe('host');
+  });
+
+  it('partial overlap cancels one-for-one (guest spends 1 bonus turn, then surfaces)', () => {
+    const { host, guest } = connect();
+    intoPlaying(host, { x: 5, y: 5 });
+    intoPlaying(guest, { x: 2, y: 2 });
+
+    host.dispatch({ kind: 'surface' }); // guest +3
+    guest.dispatch({ kind: 'move', dir: 'S' }); // guest spends one bonus turn (3 → 2)
+    expect(guest.state.myExtraTurns).toBe(SURFACE_SKIP - 1);
+
+    guest.dispatch({ kind: 'surface' }); // guest skips 3; cancels its own remaining 2 → host +1
+
+    expect(guest.state.myExtraTurns).toBe(0);
+    expect(guest.state.enemyExtraTurns).toBe(1);
+    expect(guest.state.turn).toBe('host');
+
+    expect(host.state.myExtraTurns).toBe(1);
+    expect(host.state.enemyExtraTurns).toBe(0);
+    expect(host.state.turn).toBe('host');
   });
 });

@@ -88,9 +88,15 @@ export function applyLocal(s: GameState, a: LocalAction): LocalResult {
     case 'surface': {
       if (!isMyTurn(s)) return { state: s, outgoing: [] };
       const me = { ...s.me, trail: [], energy: MAX_ENERGY, surfaced: true, revealedLine: null };
-      const next: GameState = {
-        ...s, me, myExtraTurns: 0, enemyExtraTurns: SURFACE_SKIP, turn: other(s.side), turnNumber: s.turnNumber + 1,
-      };
+      // Surfacing makes me sit out SURFACE_SKIP turns (the opponent plays them). If I
+      // currently hold bonus turns — granted by the opponent's own recent surface — the
+      // two skip streaks overlap: a turn where BOTH sides would be skipped is a no-op, so
+      // they annihilate one-for-one instead of stacking. (Mirrored in applyRemote 'surface'.)
+      const cancel = Math.min(s.myExtraTurns, s.enemyExtraTurns + SURFACE_SKIP);
+      const myExtraTurns = s.myExtraTurns - cancel;
+      const enemyExtraTurns = s.enemyExtraTurns + SURFACE_SKIP - cancel;
+      const turn = myExtraTurns > 0 ? s.side : other(s.side);
+      const next: GameState = { ...s, me, myExtraTurns, enemyExtraTurns, turn, turnNumber: s.turnNumber + 1 };
       return { state: next, outgoing: [{ t: 'surface', sector: sectorOf(me.pos), cell: me.pos }] };
     }
     case 'silence': {
@@ -199,11 +205,15 @@ export function applyRemote(s: GameState, m: WireMessage): LocalResult {
       return { state: endEnemyTurn({ ...s, enemy }), outgoing: [] };
     }
     case 'surface': {
-      // The enemy surfaced: their exact cell is exposed and I get SURFACE_SKIP consecutive turns.
+      // The enemy surfaced: their exact cell is exposed and they sit out SURFACE_SKIP turns
+      // (I play them). Mirror of applyLocal 'surface': if I had handed THEM bonus turns by
+      // surfacing myself, the overlapping skips cancel one-for-one rather than stacking.
       const enemy = { ...s.enemy, surfacedSector: m.sector, surfacedCell: m.cell, revealedLine: null };
-      const next: GameState = {
-        ...s, enemy, myExtraTurns: SURFACE_SKIP, enemyExtraTurns: 0, turn: s.side, turnNumber: s.turnNumber + 1,
-      };
+      const cancel = Math.min(s.enemyExtraTurns, s.myExtraTurns + SURFACE_SKIP);
+      const enemyExtraTurns = s.enemyExtraTurns - cancel;
+      const myExtraTurns = s.myExtraTurns + SURFACE_SKIP - cancel;
+      const turn = enemyExtraTurns > 0 ? other(s.side) : s.side;
+      const next: GameState = { ...s, enemy, myExtraTurns, enemyExtraTurns, turn, turnNumber: s.turnNumber + 1 };
       return { state: next, outgoing: [] };
     }
     case 'torpedo': {
